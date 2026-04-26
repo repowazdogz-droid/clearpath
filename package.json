@@ -1,6 +1,6 @@
 {
   "name": "clearpath",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Clearpath Audit Protocol (CAP-1.0) — tamper-evident decision trace system for AI agent accountability",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,7 +9,16 @@
     "test": "jest",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["audit", "agent", "trace", "accountability", "tamper-evident"],
+  "keywords": [
+    "audit",
+    "agent",
+    "trace",
+    "accountability",
+    "tamper-evident",
+    "omega-protocol",
+    "clearpath",
+    "cap-1.0"
+  ],
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^29.5.12",
@@ -18,5 +27,25 @@
     "ts-jest": "^29.1.2",
     "typescript": "^5.3.3"
   },
-  "files": ["dist", "README.md"]
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "author": "Warren Smith",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/repowazdogz-droid/clearpath.git"
+  },
+  "homepage": "https://github.com/repowazdogz-droid/clearpath#readme",
+  "bugs": {
+    "url": "https://github.com/repowazdogz-droid/clearpath/issues"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  }
 }
