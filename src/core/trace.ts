@@ -1,5 +1,5 @@
 /**
- * Clearpath Audit Protocol (CAP-1.0) — trace construction and hash chaining.
+ * Clearpath Audit Protocol (CAP-1.1) — trace construction and hash chaining.
  */
 
 import { createHash, randomUUID } from "crypto";
@@ -10,6 +10,9 @@ import type {
   CreateTraceOptions,
   DeriveOptions,
   DecideOptions,
+  FaithfulnessState,
+  NodeOptions,
+  SchemaVersion,
 } from "./types";
 import { NODE_TYPES } from "./types";
 import { createTrustBoundary } from "../boundaries/trust";
@@ -21,12 +24,14 @@ function canonicalEncode(node: {
   type: string;
   content: string;
   evidence: string[];
+  faithfulness?: FaithfulnessState;
   timestamp: string;
   agent_id: string;
   confidence: number | null;
   meta?: Record<string, unknown>;
 }): string {
   const evidenceStr = node.evidence.join("\n");
+  const faithfulnessStr = node.faithfulness ?? "";
   const confidenceStr = node.confidence === null ? "" : String(node.confidence);
   const metaStr =
     node.meta === undefined
@@ -37,6 +42,7 @@ function canonicalEncode(node: {
     node.type,
     node.content,
     evidenceStr,
+    faithfulnessStr,
     node.timestamp,
     node.agent_id,
     confidenceStr,
@@ -63,6 +69,7 @@ function computeHash(
   type: NodeType,
   content: string,
   evidence: string[],
+  faithfulness: FaithfulnessState | undefined,
   timestamp: string,
   agentId: string,
   confidence: number | null,
@@ -73,6 +80,7 @@ function computeHash(
     type,
     content,
     evidence,
+    faithfulness,
     timestamp,
     agent_id: agentId,
     confidence,
@@ -114,7 +122,7 @@ export class TraceBuilder {
     return this.state.createdAt;
   }
 
-  get schemaVersion(): "CAP-1.0" {
+  get schemaVersion(): SchemaVersion {
     return this.state.schemaVersion;
   }
 
@@ -133,6 +141,7 @@ export class TraceBuilder {
     options: {
       evidence?: string[];
       confidence?: number;
+      faithfulness?: FaithfulnessState;
       meta?: Record<string, unknown>;
     }
   ): TraceNode {
@@ -141,6 +150,7 @@ export class TraceBuilder {
     }
     assertValidNodeType(type);
     const evidence = options.evidence ?? [];
+    const faithfulness = options.faithfulness ?? "unverified";
     const idSet = this.idSet;
     for (const eid of evidence) {
       if (!idSet.has(eid)) {
@@ -171,6 +181,7 @@ export class TraceBuilder {
       type,
       content,
       evidence,
+      faithfulness,
       timestamp,
       this.state.agentId,
       confidence,
@@ -181,6 +192,7 @@ export class TraceBuilder {
       type,
       content,
       evidence: [...evidence],
+      faithfulness,
       timestamp,
       agent_id: this.state.agentId,
       confidence,
@@ -192,9 +204,10 @@ export class TraceBuilder {
     return node;
   }
 
-  observe(content: string, options?: { confidence?: number }): TraceNode {
+  observe(content: string, options?: NodeOptions): TraceNode {
     return this.append("OBSERVE", content, {
       confidence: options?.confidence,
+      faithfulness: options?.faithfulness,
     });
   }
 
@@ -202,12 +215,14 @@ export class TraceBuilder {
     return this.append("DERIVE", content, {
       evidence: options.evidence,
       confidence: options.confidence,
+      faithfulness: options.faithfulness,
     });
   }
 
-  assume(content: string, options?: { confidence?: number }): TraceNode {
+  assume(content: string, options?: NodeOptions): TraceNode {
     return this.append("ASSUME", content, {
       confidence: options?.confidence,
+      faithfulness: options?.faithfulness,
     });
   }
 
@@ -223,13 +238,15 @@ export class TraceBuilder {
     return this.append("DECIDE", decisionText, {
       evidence,
       confidence: options.confidence,
+      faithfulness: options.faithfulness,
       meta,
     });
   }
 
-  act(content: string, options?: { confidence?: number }): TraceNode {
+  act(content: string, options?: NodeOptions): TraceNode {
     return this.append("ACT", content, {
       confidence: options?.confidence,
+      faithfulness: options?.faithfulness,
     });
   }
 
@@ -283,7 +300,7 @@ export function createTrace(options: CreateTraceOptions): TraceBuilder {
     agentId: options.agentId,
     context: options.context,
     createdAt: new Date().toISOString(),
-    schemaVersion: "CAP-1.0",
+    schemaVersion: "CAP-1.1",
   });
 }
 

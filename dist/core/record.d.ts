@@ -1,5 +1,5 @@
 /**
- * Clearpath Audit Protocol (CAP-1.0) — decision record creation.
+ * Clearpath Audit Protocol (CAP-1.1) — decision record creation.
  */
 import type { DecisionRecord } from "./types";
 import type { TraceBuilder } from "./trace";

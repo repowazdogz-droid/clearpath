@@ -1,5 +1,5 @@
 /**
- * Clearpath Audit Protocol (CAP-1.0) — JSON export and import.
+ * Clearpath Audit Protocol (CAP-1.1) — JSON export and import.
  */
 import type { TraceBuilder } from "../core/trace";
 import type { ExportedTrace } from "../core/types";

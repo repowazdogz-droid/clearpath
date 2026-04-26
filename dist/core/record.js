@@ -1,6 +1,6 @@
 "use strict";
 /**
- * Clearpath Audit Protocol (CAP-1.0) — decision record creation.
+ * Clearpath Audit Protocol (CAP-1.1) — decision record creation.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createRecord = createRecord;

@@ -1,14 +1,15 @@
 "use strict";
 /**
- * Clearpath Audit Protocol (CAP-1.0) — public API.
+ * Clearpath Audit Protocol (CAP-1.1) — public API.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateBoundaryCoverage = exports.createTrustBoundary = exports.exportMarkdown = exports.importJSON = exports.exportJSON = exports.createRecord = exports.verifyTrace = exports.GENESIS_PREVIOUS_HASH = exports.TraceBuilder = exports.createTrace = void 0;
+exports.validateBoundaryCoverage = exports.createTrustBoundary = exports.exportMarkdown = exports.importJSON = exports.exportJSON = exports.createRecord = exports.verifyTrace = exports.getFaithfulnessReport = exports.GENESIS_PREVIOUS_HASH = exports.TraceBuilder = exports.createTrace = void 0;
 var trace_1 = require("./core/trace");
 Object.defineProperty(exports, "createTrace", { enumerable: true, get: function () { return trace_1.createTrace; } });
 Object.defineProperty(exports, "TraceBuilder", { enumerable: true, get: function () { return trace_1.TraceBuilder; } });
 Object.defineProperty(exports, "GENESIS_PREVIOUS_HASH", { enumerable: true, get: function () { return trace_1.GENESIS_PREVIOUS_HASH; } });
 var verify_1 = require("./core/verify");
+Object.defineProperty(exports, "getFaithfulnessReport", { enumerable: true, get: function () { return verify_1.getFaithfulnessReport; } });
 Object.defineProperty(exports, "verifyTrace", { enumerable: true, get: function () { return verify_1.verifyTrace; } });
 var record_1 = require("./core/record");
 Object.defineProperty(exports, "createRecord", { enumerable: true, get: function () { return record_1.createRecord; } });

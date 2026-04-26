@@ -1,7 +1,7 @@
 {
   "name": "clearpath",
-  "version": "1.0.1",
-  "description": "Clearpath Audit Protocol (CAP-1.0) — tamper-evident decision trace system for AI agent accountability",
+  "version": "1.1.0",
+  "description": "Clearpath Audit Protocol (CAP-1.1) — tamper-evident decision traces with faithfulness state for AI agent accountability",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -17,7 +17,8 @@
     "tamper-evident",
     "omega-protocol",
     "clearpath",
-    "cap-1.0"
+    "cap-1.1",
+    "faithfulness"
   ],
   "license": "MIT",
   "devDependencies": {

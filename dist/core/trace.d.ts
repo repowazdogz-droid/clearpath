@@ -1,19 +1,20 @@
 /**
- * Clearpath Audit Protocol (CAP-1.0) — trace construction and hash chaining.
+ * Clearpath Audit Protocol (CAP-1.1) — trace construction and hash chaining.
  */
-import type { TraceNode, NodeType, TraceBuilderState, CreateTraceOptions, DeriveOptions, DecideOptions } from "./types";
+import type { TraceNode, NodeType, TraceBuilderState, CreateTraceOptions, DeriveOptions, DecideOptions, FaithfulnessState, NodeOptions, SchemaVersion } from "./types";
 declare const GENESIS_PREVIOUS_HASH = "0";
 declare function canonicalEncode(node: {
     previous_hash: string;
     type: string;
     content: string;
     evidence: string[];
+    faithfulness?: FaithfulnessState;
     timestamp: string;
     agent_id: string;
     confidence: number | null;
     meta?: Record<string, unknown>;
 }): string;
-declare function computeHash(previousHash: string, type: NodeType, content: string, evidence: string[], timestamp: string, agentId: string, confidence: number | null, meta?: Record<string, unknown>): string;
+declare function computeHash(previousHash: string, type: NodeType, content: string, evidence: string[], faithfulness: FaithfulnessState | undefined, timestamp: string, agentId: string, confidence: number | null, meta?: Record<string, unknown>): string;
 export declare class TraceBuilder {
     private state;
     constructor(state: TraceBuilderState);
@@ -22,21 +23,15 @@ export declare class TraceBuilder {
     get agentId(): string;
     get context(): string;
     get createdAt(): string;
-    get schemaVersion(): "CAP-1.0";
+    get schemaVersion(): SchemaVersion;
     private get lastHash();
     private get idSet();
     private append;
-    observe(content: string, options?: {
-        confidence?: number;
-    }): TraceNode;
+    observe(content: string, options?: NodeOptions): TraceNode;
     derive(content: string, options: DeriveOptions): TraceNode;
-    assume(content: string, options?: {
-        confidence?: number;
-    }): TraceNode;
+    assume(content: string, options?: NodeOptions): TraceNode;
     decide(decisionText: string, options: DecideOptions): TraceNode;
-    act(content: string, options?: {
-        confidence?: number;
-    }): TraceNode;
+    act(content: string, options?: NodeOptions): TraceNode;
     setBoundary(name: string, options: {
         nodes: string[];
         description?: string;

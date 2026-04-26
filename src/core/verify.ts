@@ -1,8 +1,14 @@
 /**
- * Clearpath Audit Protocol (CAP-1.0) — hash chain and structural verification.
+ * Clearpath Audit Protocol (CAP-1.1) — hash chain, structure, and faithfulness summaries.
  */
 
-import type { TraceNode, TrustBoundary, VerifyResult } from "./types";
+import type {
+  FaithfulnessReport,
+  FaithfulnessState,
+  TraceNode,
+  TrustBoundary,
+  VerifyResult,
+} from "./types";
 import { computeHash } from "./trace";
 import { validateBoundaryCoverage } from "../boundaries/trust";
 
@@ -40,6 +46,7 @@ export function verifyTrace(trace: TraceLike): VerifyResult {
       node.type,
       node.content,
       node.evidence,
+      node.faithfulness,
       node.timestamp,
       node.agent_id,
       node.confidence,
@@ -78,4 +85,21 @@ export function verifyTrace(trace: TraceLike): VerifyResult {
   }
 
   return { valid: true };
+}
+
+export function getFaithfulnessReport(trace: { nodes: TraceNode[] }): FaithfulnessReport {
+  const report: FaithfulnessReport = {
+    total: trace.nodes.length,
+    verified_faithful: 0,
+    narrative: 0,
+    unverified: 0,
+    disputed: 0,
+  };
+
+  for (const node of trace.nodes) {
+    const state: FaithfulnessState = node.faithfulness ?? "unverified";
+    report[state] += 1;
+  }
+
+  return report;
 }

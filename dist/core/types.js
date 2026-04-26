@@ -1,6 +1,6 @@
 "use strict";
 /**
- * Clearpath Audit Protocol (CAP-1.0) — core type definitions.
+ * Clearpath Audit Protocol (CAP-1.1) — core type definitions.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NODE_TYPES = void 0;

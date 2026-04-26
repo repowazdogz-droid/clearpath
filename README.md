@@ -1,4 +1,4 @@
-# Clearpath Audit Protocol (CAP-1.0)
+# Clearpath Audit Protocol (CAP-1.1)
 
 Tamper-evident decision traces for AI agents.
 
@@ -25,6 +25,7 @@ Clearpath is the protocol layer. It doesn't care what the AI decided. It makes t
 - Decision records with alternatives and rejection reasoning
 - Evidence references linking derived conclusions to source observations
 - Verification in one line — returns first broken node if tampered
+- Faithfulness state on each trace node — verified, narrative, unverified, or disputed
 - Export as markdown or JSON
 - Import with schema validation
 - Zero external dependencies
@@ -50,7 +51,10 @@ const trace = createTrace({
 
 trace.observe('MRI confirms L4/5 disc herniation with nerve root compression. 12 weeks progressive radiculopathy. Conservative management failed.');
 
-trace.derive('Surgical candidate. Imaging correlation positive. Initial confidence 0.92.', { evidence: [trace.nodes[0].id] });
+trace.derive('Surgical candidate. Imaging correlation positive. Initial confidence 0.92.', {
+  evidence: [trace.nodes[0].id],
+  faithfulness: 'verified_faithful'
+});
 
 trace.assume('No significant comorbidity interaction. Diabetes and anticoagulation status not cross-referenced with surgical risk weighting.');
 
@@ -71,6 +75,49 @@ const result = verifyTrace(trace); // { valid: true }
 // Export
 console.log(exportMarkdown(trace));
 ```
+
+## Faithfulness Verification
+
+Clearpath verifies that a decision trace has not been tampered with; it does not automatically prove that a reasoning narrative is the true causal reason an AI system reached its answer. CAP-1.1 adds a backward-compatible faithfulness state to every new trace node:
+
+- `verified_faithful` — derivation tight, premises causally entail conclusion through stated steps
+- `narrative` — coherent prose around a conclusion, but causal entailment from premises is not demonstrated
+- `unverified` — no faithfulness check has been performed
+- `disputed` — multiple verifiers disagree on faithfulness
+
+```javascript
+const {
+  createTrace,
+  getFaithfulnessReport,
+  verifyTrace
+} = require('./dist/index');
+
+const trace = createTrace({
+  agentId: 'clinical-agent',
+  context: 'Triage recommendation'
+});
+
+const observation = trace.observe('Patient reports chest pain and shortness of breath.', {
+  faithfulness: 'verified_faithful'
+});
+
+trace.derive('Urgent assessment recommended.', {
+  evidence: [observation.id],
+  faithfulness: 'narrative'
+});
+
+console.log(verifyTrace(trace)); // { valid: true }
+console.log(getFaithfulnessReport(trace));
+// {
+//   total: 2,
+//   verified_faithful: 1,
+//   narrative: 1,
+//   unverified: 0,
+//   disputed: 0
+// }
+```
+
+Existing CAP-1.0 traces without a `faithfulness` field still import and verify. See `V2_DESIGN.md` for the design rationale and research context.
 
 ## Output
 
@@ -117,11 +164,11 @@ Targeted epidural steroid injection under fluoroscopic guidance.
 npm test
 ```
 
-27 tests covering hash integrity, tamper detection, evidence references, trust boundaries, decision records, import/export roundtrip, canonical hash determinism, and verification.
+36 tests covering hash integrity, tamper detection, evidence references, trust boundaries, decision records, import/export roundtrip, canonical hash determinism, faithfulness state handling, and verification.
 
 ## Schema
 
-- **TraceNode** — `OBSERVE | DERIVE | ASSUME | DECIDE | ACT` — hash-chained with SHA-256
+- **TraceNode** — `OBSERVE | DERIVE | ASSUME | DECIDE | ACT` — hash-chained with SHA-256 and optional CAP-1.1 faithfulness state
 - **TrustBoundary** — groups of nodes where responsibility transitions (human → agent, agent → external)
 - **DecisionRecord** — full auditable record (trace + boundaries + outcome + verification status)
 
@@ -147,7 +194,7 @@ The protocol is domain-agnostic. The audit mechanism is identical. The stakes ch
 
 ## Status
 
-- 27 tests passing
+- 36 tests passing
 - TypeScript, zero external dependencies
 - Open-source (MIT)
 - Part of the [Omega](https://omegaprotocol.org) reasoning infrastructure

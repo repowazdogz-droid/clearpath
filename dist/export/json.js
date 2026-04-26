@@ -1,18 +1,19 @@
 "use strict";
 /**
- * Clearpath Audit Protocol (CAP-1.0) — JSON export and import.
+ * Clearpath Audit Protocol (CAP-1.1) — JSON export and import.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.exportJSON = exportJSON;
 exports.importJSON = importJSON;
 const trace_1 = require("../core/trace");
 function getExportPayload(trace) {
-    if ("schema_version" in trace && trace.schema_version === "CAP-1.0") {
+    if ("schema_version" in trace &&
+        (trace.schema_version === "CAP-1.0" || trace.schema_version === "CAP-1.1")) {
         return trace;
     }
     const t = trace;
     return {
-        schema_version: "CAP-1.0",
+        schema_version: t.schemaVersion,
         agent_id: t.agentId,
         context: t.context,
         created_at: t.createdAt,
@@ -38,8 +39,8 @@ function importJSON(json) {
         throw new Error("Invalid JSON: expected object");
     }
     const o = data;
-    if (o.schema_version !== "CAP-1.0") {
-        throw new Error(`Invalid schema_version: expected "CAP-1.0", got ${String(o.schema_version)}`);
+    if (o.schema_version !== "CAP-1.0" && o.schema_version !== "CAP-1.1") {
+        throw new Error(`Invalid schema_version: expected "CAP-1.0" or "CAP-1.1", got ${String(o.schema_version)}`);
     }
     const nodes = o.nodes;
     if (!Array.isArray(nodes)) {
@@ -77,7 +78,7 @@ function importJSON(json) {
         agentId: agent_id,
         context,
         createdAt: created_at,
-        schemaVersion: "CAP-1.0",
+        schemaVersion: o.schema_version,
         readOnly: true,
     });
 }

@@ -1,9 +1,10 @@
 "use strict";
 /**
- * Clearpath Audit Protocol (CAP-1.0) — hash chain and structural verification.
+ * Clearpath Audit Protocol (CAP-1.1) — hash chain, structure, and faithfulness summaries.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyTrace = verifyTrace;
+exports.getFaithfulnessReport = getFaithfulnessReport;
 const trace_1 = require("./trace");
 const trust_1 = require("../boundaries/trust");
 /**
@@ -27,7 +28,7 @@ function verifyTrace(trace) {
         if (node.previous_hash !== previousHash) {
             return { valid: false, brokenAt: node.id, error: "previous_hash mismatch" };
         }
-        const recomputed = (0, trace_1.computeHash)(node.previous_hash, node.type, node.content, node.evidence, node.timestamp, node.agent_id, node.confidence, node.meta);
+        const recomputed = (0, trace_1.computeHash)(node.previous_hash, node.type, node.content, node.evidence, node.faithfulness, node.timestamp, node.agent_id, node.confidence, node.meta);
         if (recomputed !== node.hash) {
             return { valid: false, brokenAt: node.id, error: "hash mismatch" };
         }
@@ -55,5 +56,19 @@ function verifyTrace(trace) {
         return { valid: false, error: coverage.error };
     }
     return { valid: true };
+}
+function getFaithfulnessReport(trace) {
+    const report = {
+        total: trace.nodes.length,
+        verified_faithful: 0,
+        narrative: 0,
+        unverified: 0,
+        disputed: 0,
+    };
+    for (const node of trace.nodes) {
+        const state = node.faithfulness ?? "unverified";
+        report[state] += 1;
+    }
+    return report;
 }
 //# sourceMappingURL=verify.js.map

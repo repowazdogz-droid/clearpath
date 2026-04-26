@@ -1,5 +1,5 @@
 /**
- * Clearpath Audit Protocol (CAP-1.0) — human-readable markdown export.
+ * Clearpath Audit Protocol (CAP-1.1) — human-readable markdown export.
  */
 import type { TraceNode, TrustBoundary } from "../core/types";
 import type { TraceBuilder } from "../core/trace";

@@ -1,9 +1,9 @@
 /**
- * Clearpath Audit Protocol (CAP-1.0) — public API.
+ * Clearpath Audit Protocol (CAP-1.1) — public API.
  */
 
 export { createTrace, TraceBuilder, GENESIS_PREVIOUS_HASH } from "./core/trace";
-export { verifyTrace } from "./core/verify";
+export { getFaithfulnessReport, verifyTrace } from "./core/verify";
 export { createRecord } from "./core/record";
 export type { CreateRecordOptions } from "./core/record";
 export { exportJSON, importJSON } from "./export/json";
@@ -12,6 +12,8 @@ export { createTrustBoundary, validateBoundaryCoverage } from "./boundaries/trus
 export type {
   TraceNode,
   NodeType,
+  FaithfulnessReport,
+  FaithfulnessState,
   TrustBoundary,
   DecisionRecord,
   VerificationStatus,

@@ -1,6 +1,6 @@
 "use strict";
 /**
- * Clearpath Audit Protocol (CAP-1.0) — human-readable markdown export.
+ * Clearpath Audit Protocol (CAP-1.1) — human-readable markdown export.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.exportMarkdown = exportMarkdown;
@@ -36,7 +36,7 @@ function exportMarkdown(trace) {
         `# Decision Trace: ${context}`,
         `**Agent:** ${agentId}`,
         `**Created:** ${createdAt}`,
-        `**Schema:** CAP-1.0`,
+        `**Schema:** CAP-1.1 (backward-compatible with CAP-1.0)`,
         `**Verification:** ${verificationLine}`,
         "",
         "## Trace",
@@ -62,6 +62,9 @@ function exportMarkdown(trace) {
         }
         if (node.evidence.length > 0) {
             lines.push(`*Evidence: ${node.evidence.join(", ")}*`);
+        }
+        if (node.faithfulness) {
+            lines.push(`*Faithfulness: ${node.faithfulness}*`);
         }
         if (tb) {
             lines.push(`*Trust boundary: ${tb}*`);

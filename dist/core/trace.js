@@ -1,6 +1,6 @@
 "use strict";
 /**
- * Clearpath Audit Protocol (CAP-1.0) — trace construction and hash chaining.
+ * Clearpath Audit Protocol (CAP-1.1) — trace construction and hash chaining.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GENESIS_PREVIOUS_HASH = exports.TraceBuilder = void 0;
@@ -14,6 +14,7 @@ const GENESIS_PREVIOUS_HASH = "0";
 exports.GENESIS_PREVIOUS_HASH = GENESIS_PREVIOUS_HASH;
 function canonicalEncode(node) {
     const evidenceStr = node.evidence.join("\n");
+    const faithfulnessStr = node.faithfulness ?? "";
     const confidenceStr = node.confidence === null ? "" : String(node.confidence);
     const metaStr = node.meta === undefined
         ? ""
@@ -23,6 +24,7 @@ function canonicalEncode(node) {
         node.type,
         node.content,
         evidenceStr,
+        faithfulnessStr,
         node.timestamp,
         node.agent_id,
         confidenceStr,
@@ -43,12 +45,13 @@ function sortKeys(obj) {
     }
     return out;
 }
-function computeHash(previousHash, type, content, evidence, timestamp, agentId, confidence, meta) {
+function computeHash(previousHash, type, content, evidence, faithfulness, timestamp, agentId, confidence, meta) {
     const payload = canonicalEncode({
         previous_hash: previousHash,
         type,
         content,
         evidence,
+        faithfulness,
         timestamp,
         agent_id: agentId,
         confidence,
@@ -96,6 +99,7 @@ class TraceBuilder {
         }
         assertValidNodeType(type);
         const evidence = options.evidence ?? [];
+        const faithfulness = options.faithfulness ?? "unverified";
         const idSet = this.idSet;
         for (const eid of evidence) {
             if (!idSet.has(eid)) {
@@ -121,12 +125,13 @@ class TraceBuilder {
         const previousHash = this.lastHash;
         const confidence = options.confidence ?? null;
         const meta = options.meta;
-        const hash = computeHash(previousHash, type, content, evidence, timestamp, this.state.agentId, confidence, meta);
+        const hash = computeHash(previousHash, type, content, evidence, faithfulness, timestamp, this.state.agentId, confidence, meta);
         const node = {
             id,
             type,
             content,
             evidence: [...evidence],
+            faithfulness,
             timestamp,
             agent_id: this.state.agentId,
             confidence,
@@ -140,17 +145,20 @@ class TraceBuilder {
     observe(content, options) {
         return this.append("OBSERVE", content, {
             confidence: options?.confidence,
+            faithfulness: options?.faithfulness,
         });
     }
     derive(content, options) {
         return this.append("DERIVE", content, {
             evidence: options.evidence,
             confidence: options.confidence,
+            faithfulness: options.faithfulness,
         });
     }
     assume(content, options) {
         return this.append("ASSUME", content, {
             confidence: options?.confidence,
+            faithfulness: options?.faithfulness,
         });
     }
     decide(decisionText, options) {
@@ -162,12 +170,14 @@ class TraceBuilder {
         return this.append("DECIDE", decisionText, {
             evidence,
             confidence: options.confidence,
+            faithfulness: options.faithfulness,
             meta,
         });
     }
     act(content, options) {
         return this.append("ACT", content, {
             confidence: options?.confidence,
+            faithfulness: options?.faithfulness,
         });
     }
     setBoundary(name, options) {
@@ -217,7 +227,7 @@ function createTrace(options) {
         agentId: options.agentId,
         context: options.context,
         createdAt: new Date().toISOString(),
-        schemaVersion: "CAP-1.0",
+        schemaVersion: "CAP-1.1",
     });
 }
 //# sourceMappingURL=trace.js.map
