@@ -29,6 +29,8 @@ Clearpath is the protocol layer. It doesn't care what the AI decided. It makes t
 - Import with schema validation
 - Zero external dependencies
 
+Repository: https://github.com/repowazdogz-droid/clearpath
+
 ## Install
 
 ```bash
